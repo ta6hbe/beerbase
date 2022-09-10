@@ -1,0 +1,12 @@
+version: '2.2'
+services:
+  beerbase-service:
+    container_name: harrys_beerbase
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: harrys_beerbase:latest
+    ports:
+      - ${SERVER_PORT:-8080}:8080
+
+
