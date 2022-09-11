@@ -39,3 +39,4 @@ build/
 
 ### Mac Os
 *.DS_Store
+.gradle/
