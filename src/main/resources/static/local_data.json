@@ -1,0 +1,12 @@
+[
+  {
+    "beer_identifier": 1,
+    "beer_name": "So Energy Supply",
+    "beer_description": "This beer is as green as the energy we supply."
+  },
+  {
+    "beer_identifier": 2,
+    "beer_name": "100% Not beer",
+    "beer_description": "Like the name suggests, this is actually just a cool, refreshing glass of something that vaguely resembles a beer on a warm summer's day."
+  }
+]
