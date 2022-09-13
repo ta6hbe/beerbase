@@ -17,22 +17,30 @@ configurations {
 repositories {
 	mavenCentral()
 }
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'com.h2database:h2'
 	implementation 'org.projectlombok:lombok:1.18.16'
+	implementation 'org.assertj:assertj-core:3.22.0'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
+	testImplementation ( 'org.springframework.boot:spring-boot-starter-test') {
+		//Excluding these from springframework as we are using JUNIT 5 jupiter engine
+		exclude group: 'org.junit', module: 'junit'
+		exclude group: 'org.mockito', module: 'mockito-core'
+		exclude group: 'org.mockito', module: 'mockito-all'
+	}
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+	testImplementation 'org.mockito:mockito-core:3.11.2'
+	testImplementation 'org.mockito:mockito-junit-jupiter:3.11.2'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()

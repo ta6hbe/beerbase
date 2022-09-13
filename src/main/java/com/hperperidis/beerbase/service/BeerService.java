@@ -1,14 +1,15 @@
 package com.hperperidis.beerbase.service;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +30,6 @@ import org.springframework.hateoas.LinkRelation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -45,7 +45,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * @author C Perperidis(ta6hbe@hotmail.com)
  *
  */
-
 @Service
 public class BeerService {
 
