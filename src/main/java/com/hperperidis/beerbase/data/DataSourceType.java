@@ -11,7 +11,7 @@ package com.hperperidis.beerbase.data;
 public enum DataSourceType {
     REST_API("rest_api"),
     LOCAL_FILE("local_file"),
-    PUNK_API("punk_api");
+    URL("url");
 
     public final String label;
 

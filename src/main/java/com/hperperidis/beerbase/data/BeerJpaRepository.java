@@ -1,11 +1,13 @@
 package com.hperperidis.beerbase.data;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 /**
  * JPA Repository interface definining all available CRUD JPA actions for the Beers Repo.
@@ -29,10 +31,17 @@ import org.springframework.data.repository.query.Param;
  *
  * @author C. Perperidis(ta6hbe@hotmail.com)
  */
-public interface BeerRepository extends JpaRepository<Beer, Long> {
+@Repository
+public interface BeerJpaRepository extends JpaRepository<Beer, Long> {
+
     List<Beer> findBeerByName(@Param("name") String name);
 
     long count();
 
     Page<Beer> findAll(Pageable pageable);
+
+    Optional<Beer> findByExternalIdAndDataSourceAndRemotePath(
+            @Param("externalId") String externalId,
+            @Param("dataSource") String dataSource,
+            @Param("remotePath") String remotePath);
 }

@@ -23,7 +23,7 @@ import lombok.Setter;
  *  - beer_identifier
  *
  *  When the DTO will be serialised, it will only be to return data from OUR API, which
- *  only defines the beer id: as **identifier**. (TODO: need to test this)
+ *  only defines the beer id: as **identifier**.
  *
  * Also decouples our Data Transfer - Request/Response data from the Data Access layer
  * representations.

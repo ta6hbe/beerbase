@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
  *  - search all beers for a given name
  *  - add a beer
  *  - get a random beer
+ *  - post with a source URL to `beers/url` to ingest data from a REST API returning JSON. e.g. https://api.punkapi.com/v2/beers ;)
  *
  * Makes use of and delegates to the {@code BeerService} for handling the relevant requests.
  *
@@ -58,5 +59,10 @@ public class BeerController {
     @PostMapping
     public ResponseEntity<BeerModel> postBeer(@RequestBody final BeerDTO beerFromRequest) {
         return beerService.add(beerFromRequest);
+    }
+
+    @PostMapping("/url")
+    public ResponseEntity<CollectionModel<BeerModel>> insertOrUpdateByUrl(@RequestBody final String url) {
+        return beerService.injestDataFromURL(url);
     }
 }

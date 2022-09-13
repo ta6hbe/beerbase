@@ -2,9 +2,7 @@ package com.hperperidis.beerbase.data;
 
 import java.util.Objects;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import com.hperperidis.beerbase.model.BeerDTO;
 import lombok.AllArgsConstructor;
@@ -30,17 +28,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Entity
+@Table(name="beers")
 public class Beer {
 
     @Id @GeneratedValue
     private Long id;
 
+    private String externalId;
+
     private String dataSource;
 
-    private String externalId;
+    private String remotePath;
 
     private String name;
 
+    @Column(name="description", length=4096, nullable=true, unique=false)
     private String description;
 
     @Override
