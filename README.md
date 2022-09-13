@@ -30,6 +30,13 @@ input operations. These are:
    from where it gets parsed into a list of {@code BeerDTO} objects, which can then be used to 
    add the records to our DB.
    
+You can use the POSTMAN collection of calls I have included in the `./postman` folder, to test this 
+functionality. I have tested locally both with:
+- passing a post body containing the PUNKAPI beers url: https://api.punkapi.com/v2/beers.
+- Passing a post body containing a multipart file upload of /resources/static/local_data,josn.
+
+Make sure you modify the collection to point to the host port you are using to run the service locally.
+   
 ### Batch operations do not duplicate records - CreateOrUpdate to the Rescue!!!
 
 The database Entity model holds additional data from what is exchanged / exposed via the view layer
