@@ -44,9 +44,11 @@ public class BeerDTO {
     @JsonProperty("identifier")
     private Long id;
 
+    @JsonAlias({"beer_name", "name"})
     @JsonProperty
     private String name;
 
+    @JsonAlias({"beer_description", "description"})
     @JsonProperty
     private String description;
 

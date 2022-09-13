@@ -1,10 +1,18 @@
 package com.hperperidis.beerbase.service;
 
+import java.io.*;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hperperidis.beerbase.Exceptions.BeerServiceException;
 import com.hperperidis.beerbase.data.Beer;
 import com.hperperidis.beerbase.data.BeerJpaRepository;
 import com.hperperidis.beerbase.data.DataSourceType;
@@ -21,6 +29,7 @@ import org.springframework.hateoas.LinkRelation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -55,15 +64,16 @@ public class BeerService {
         this.httpClient = httpClient;
     }
 
-    public ResponseEntity<BeerModel> getById(long id) {
+    public CompletableFuture<ResponseEntity<BeerModel>> getById(long id) {
         return beerJpaRepository.findById(id)
                 .map(Beer::toDTO)
                 .map(BeerModel::new)
                 .map( beer -> ResponseEntity.ok().body(beer) )
-                .orElseGet( () -> ResponseEntity.notFound().build());
+                .map(CompletableFuture::completedFuture)
+                .orElseGet( () -> CompletableFuture.completedFuture(ResponseEntity.notFound().build()));
     }
 
-    public ResponseEntity<BeerModel> getRandomBeer() {
+    public CompletableFuture<ResponseEntity<BeerModel>> getRandomBeer() {
         long qty = beerJpaRepository.count();
         return beerJpaRepository.findAll(PageRequest.of(
                 (int) Math.floor(Math.random()*(qty)), 1))
@@ -71,24 +81,25 @@ public class BeerService {
                 .map( Beer::toDTO)
                 .map( BeerModel::new )
                 .map( beerModel -> ResponseEntity.ok().body(beerModel) )
-                .orElseGet( () -> ResponseEntity.notFound().build());
+                .map( CompletableFuture::completedFuture)
+                .orElseGet( () -> CompletableFuture.completedFuture(ResponseEntity.notFound().build()));
     }
 
-    public ResponseEntity<CollectionModel<BeerModel>> getAllBeers() {
+    public CompletableFuture<ResponseEntity<CollectionModel<BeerModel>>> getAllBeers() {
         final List<BeerModel> collection =
                 beerJpaRepository.findAll().stream()
                         .map(Beer::toDTO)
                         .map(BeerModel::new)
                         .collect(Collectors.toList());
         if (collection.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         } {
             final String uriString = ServletUriComponentsBuilder.fromCurrentRequest().build().toUriString();
-            return ResponseEntity.ok().body(CollectionModel.of(collection).add(Link.of(uriString, LinkRelation.of("self"))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok().body(CollectionModel.of(collection).add(Link.of(uriString, LinkRelation.of("self")))));
         }
     }
 
-    public ResponseEntity<CollectionModel<BeerModel>> getByName(String name) {
+    public CompletableFuture<ResponseEntity<CollectionModel<BeerModel>>> getByName(String name) {
         final List<BeerModel> collection =
                 beerJpaRepository.findBeerByName(name).stream()
                         .map(Beer::toDTO)
@@ -96,14 +107,14 @@ public class BeerService {
                         .collect(Collectors.toList());
 
         if (collection.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         } else {
             final String uriString = ServletUriComponentsBuilder.fromCurrentRequest().build().toUriString();
-            return ResponseEntity.ok().body(CollectionModel.of(collection).add(Link.of(uriString, LinkRelation.of("self"))));
+            return CompletableFuture.completedFuture(ResponseEntity.ok().body(CollectionModel.of(collection).add(Link.of(uriString, LinkRelation.of("self")))));
         }
     }
 
-    public ResponseEntity<BeerModel> add(BeerDTO beerDTO) {
+    public CompletableFuture<ResponseEntity<BeerModel>> add(BeerDTO beerDTO) {
         Beer beer = beerDTO.toBeer();
         beerJpaRepository.save(beer);
         final URI uri =
@@ -111,25 +122,26 @@ public class BeerService {
                         .path("/{id}")
                         .buildAndExpand(beer.getId())
                         .toUri();
-        return ResponseEntity.created(uri).body(new BeerModel(beer.toDTO()));
+        return CompletableFuture.completedFuture(ResponseEntity.created(uri).body(new BeerModel(beer.toDTO())));
     }
 
-    public ResponseEntity<BeerModel> update(BeerDTO beerDTO) {
+    public CompletableFuture<ResponseEntity<BeerModel>> update(BeerDTO beerDTO) {
         return beerJpaRepository.findById(beerDTO.getId()).map(beer -> beer.toBuilder()
                 .description(beerDTO.getDescription()).name(beerDTO.getName()).build())
                 .map(beerJpaRepository::save)
                 .map(Beer::toDTO)
                 .map(BeerModel::new)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .map(CompletableFuture::completedFuture)
+                .orElseGet(() -> CompletableFuture.completedFuture(ResponseEntity.notFound().build()));
     }
 
     @Transactional
-    public ResponseEntity<CollectionModel<BeerModel>> batchUpdateOrCreateByDataSource(
+    public CompletableFuture<ResponseEntity<CollectionModel<BeerModel>>> batchUpdateOrCreateByDataSource(
             List<BeerDTO> records, DataSourceType type, String dataSourceUrl) {
 
         if(records.isEmpty()) {
-            return ResponseEntity.unprocessableEntity().build();
+            return CompletableFuture.completedFuture(ResponseEntity.unprocessableEntity().build());
         }
 
         List<BeerModel>updatedOrCreated = records.stream()
@@ -137,10 +149,10 @@ public class BeerService {
                 .map(Beer::toDTO).map(BeerModel::new).collect(Collectors.toList());
 
         if (updatedOrCreated.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
 
-        return ResponseEntity.ok().body(CollectionModel.of(updatedOrCreated));
+        return CompletableFuture.completedFuture(ResponseEntity.ok().body(CollectionModel.of(updatedOrCreated)));
     }
 
     @Transactional
@@ -166,9 +178,28 @@ public class BeerService {
     }
 
     @Transactional
-    public ResponseEntity<CollectionModel<BeerModel>> injestDataFromURL(String url){
-
+    public CompletableFuture<ResponseEntity<CollectionModel<BeerModel>>> ingestDataFromURL(String url){
         return batchUpdateOrCreateByDataSource(httpClient.fromUrl(url), DataSourceType.URL, url);
+    }
 
+    @Transactional
+    public CompletableFuture<ResponseEntity<CollectionModel<BeerModel>>> ingestDataFromFile(File file) {
+        return parseFile(file)
+                .thenCompose(list -> batchUpdateOrCreateByDataSource(list, DataSourceType.URL, file.toPath().toString()));
+    }
+
+    private CompletableFuture<List<BeerDTO>> parseFile (File file) {
+
+        if (file == null || !file.isFile() || !file.exists()) {
+            throw new BeerServiceException(
+                    new FileNotFoundException("Could not process input File. File was not found or Null!"));
+        }
+         try {
+             return CompletableFuture.completedFuture(
+                     Arrays.stream(new ObjectMapper().readValue(Files.readString(file.toPath()), BeerDTO[].class)).collect(Collectors.toList()));
+         } catch ( IOException e) {
+             throw new BeerServiceException(
+                     String.format("Failed to parse records from input file Name: [ %s ] with Error: [ %s ]", file.getName(), e.getMessage()));
+         }
     }
 }
