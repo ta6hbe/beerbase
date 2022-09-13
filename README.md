@@ -12,7 +12,7 @@ The service is launched via an embedded Tomcat server.
 ## Hypermedia As the Engine Of Application State (HATEOAS)
 All records are returned wrapped inside {@code RepresentationModel<EntityModel>} or 
 {@code RepresentationModel<CollectionModel<EntityModel>>}
-These are Spring Framework HATEOAS classes, that can be used to add the HTTP links that represeent
+These are Spring Framework HATEOAS classes, that can be used to add the HTTP links that represent
 each record.
 
 ## Batch Operations - POST data to the Service.
@@ -33,7 +33,7 @@ input operations. These are:
 You can use the POSTMAN collection of calls I have included in the `./postman` folder, to test this 
 functionality. I have tested locally both with:
 - passing a post body containing the PUNKAPI beers url: https://api.punkapi.com/v2/beers.
-- Passing a post body containing a multipart file upload of /resources/static/local_data,josn.
+- Passing a post body containing a multipart file upload of /resources/static/local_data.json.
 
 Make sure you modify the collection to point to the host port you are using to run the service locally.
    
@@ -47,7 +47,7 @@ model, namely the {@code BeerDTO}. The {@code Beer} entity model contains additi
 
 These fields combined can be used to filter data by datasource type and id and make sure we 
 match incoming records to existing ones, if they are from the same Datasource, they contain the same
-external id (the sourcess identifier) and the same data soure. In case of URLs it is the url,
+external id (the source's identifier), and the same data source. In case of URLs it is the url,
 in case of a file, the {@code CanonicalFileName}.
 
 **This has 3 advantages:**
@@ -59,7 +59,7 @@ in case of a file, the {@code CanonicalFileName}.
 3. We do not need to have BatchInsert and BatchUpdate queries.
 
 ### Use of @Transactional
-All batch operations use transactional queries. If an erroris raised while carrying out a DB
+All batch operations use transactional queries. If an error is raised while carrying out a DB
 operation, the transaction is reverted, and the existing records are left in their prior state.
 
 --------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ If you run with docker-compose:
 - Running with docker-compose though, this can be altered to any local port of your choice, by issuing:
 
 ```
-SERVER_PORT=<Enter Your PORT Number here> dockoer-compose up --build
+SERVER_PORT=<Enter Your PORT Number here> docker-compose up --build
 ```
 
 --------------------------------------------------------------------------------------------
